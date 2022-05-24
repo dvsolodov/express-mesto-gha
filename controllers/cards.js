@@ -10,14 +10,17 @@ const getCards = (req, res) => {
 const deleteCard = (req, res) => {
   Card.findByIdAndRemove(req.params.id)
     .then((card) => res.send({ data: card }))
-    .catch((err) => res.status(500).send({ message: `Произошла ошибка ${err.name}: ${err.message}` }));
+    .catch((err) => handleErrors(err, res));
 };
 
 const createCard = (req, res) => {
-  const { name, link, owner, likes, createdAt } = req.body;
-  const now = new Date();
+  const {
+    name, link, owner = req.user._id, likes, createdAt = new Date(),
+  } = req.body;
 
-  Card.create({ name, link, owner: req.user._id, likes, createdAt: now })
+  Card.create({
+    name, link, owner, likes, createdAt,
+  })
     .then((card) => res.send({ data: card }))
     .catch((err) => handleErrors(err, res));
 };
@@ -39,7 +42,7 @@ const dislikeCard = (req, res) => {
     { new: true },
   )
     .then((card) => res.send({ data: card }))
-    .catch((err) => res.status(500).send({ message: `Произошла ошибка ${err.name}: ${err.message}` }));
+    .catch((err) => handleErrors(err, res));
 };
 
 module.exports = {
