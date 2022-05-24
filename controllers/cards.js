@@ -1,9 +1,10 @@
 const Card = require('../models/card');
+const { handleErrors } = require('../utils/utils');
 
 const getCards = (req, res) => {
   Card.find({})
     .then((cards) => res.send({ data: cards }))
-    .catch((err) => res.status(500).send({ message: `Произошла ошибка ${err.name}: ${err.message}` }));
+    .catch((err) => handleErrors(err, res));
 };
 
 const deleteCard = (req, res) => {
@@ -18,7 +19,7 @@ const createCard = (req, res) => {
 
   Card.create({ name, link, owner: req.user._id, likes, createdAt: now })
     .then((card) => res.send({ data: card }))
-    .catch((err) => res.status(500).send({ message: `Произошла ошибка ${err.name}: ${err.message}` }));
+    .catch((err) => handleErrors(err, res));
 };
 
 const likeCard = (req, res) => {
@@ -28,7 +29,7 @@ const likeCard = (req, res) => {
     { new: true },
   )
     .then((card) => res.send({ data: card }))
-    .catch((err) => res.status(500).send({ message: `Произошла ошибка ${err.name}: ${err.message}` }));
+    .catch((err) => handleErrors(err, res));
 };
 
 const dislikeCard = (req, res) => {
