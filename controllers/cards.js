@@ -1,11 +1,12 @@
 const Card = require('../models/card');
 const { handleErrors } = require('../utils/utils');
+const { ERR_400, ERR_404 } = require('../utils/constants');
 
 const getCards = (req, res) => {
   Card.find({})
     .then((cards) => {
       if (!cards) {
-        res.status(404).send({ message: 'Данные не найдены' });
+        res.status(ERR_404).send({ message: 'Данные не найдены' });
 
         return;
       }
@@ -19,7 +20,7 @@ const deleteCard = (req, res) => {
   const { cardId } = req.params;
 
   if (!cardId.match(/^[\w\d]{24}$/)) {
-    res.status(400).send({ message: 'Переданы некорректные данные' });
+    res.status(ERR_400).send({ message: 'Переданы некорректные данные' });
 
     return;
   }
@@ -27,7 +28,7 @@ const deleteCard = (req, res) => {
   Card.findByIdAndRemove(cardId)
     .then((card) => {
       if (!card) {
-        res.status(404).send({ message: 'Данные не найдены' });
+        res.status(ERR_404).send({ message: 'Данные не найдены' });
 
         return;
       }
@@ -47,7 +48,7 @@ const createCard = (req, res) => {
   })
     .then((card) => {
       if (!card) {
-        res.status(404).send({ message: 'Данные не найдены' });
+        res.status(ERR_404).send({ message: 'Данные не найдены' });
 
         return;
       }
@@ -61,7 +62,7 @@ const likeCard = (req, res) => {
   const { cardId } = req.params;
 
   if (!cardId.match(/^[\w\d]{24}$/)) {
-    res.status(400).send({ message: 'Переданы некорректные данные' });
+    res.status(ERR_400).send({ message: 'Переданы некорректные данные' });
 
     return;
   }
@@ -73,7 +74,7 @@ const likeCard = (req, res) => {
   )
     .then((card) => {
       if (!card) {
-        res.status(404).send({ message: 'Данные не найдены' });
+        res.status(ERR_404).send({ message: 'Данные не найдены' });
 
         return;
       }
@@ -87,7 +88,7 @@ const dislikeCard = (req, res) => {
   const { cardId } = req.params;
 
   if (!cardId.match(/^[\w\d]{24}$/)) {
-    res.status(400).send({ message: 'Переданы некорректные данные' });
+    res.status(ERR_400).send({ message: 'Переданы некорректные данные' });
 
     return;
   }
@@ -99,7 +100,7 @@ const dislikeCard = (req, res) => {
   )
     .then((card) => {
       if (!card) {
-        res.status(404).send({ message: 'Данные не найдены' });
+        res.status(ERR_404).send({ message: 'Данные не найдены' });
 
         return;
       }

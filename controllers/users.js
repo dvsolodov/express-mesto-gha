@@ -1,11 +1,12 @@
 const User = require('../models/user');
 const { handleErrors } = require('../utils/utils');
+const { ERR_400, ERR_404 } = require('../utils/constants');
 
 const getUsers = (req, res) => {
   User.find({})
     .then((users) => {
       if (!users) {
-        res.status(404).send({ message: 'Данные не найдены' });
+        res.status(ERR_404).send({ message: 'Данные не найдены' });
 
         return;
       }
@@ -19,7 +20,7 @@ const getUserById = (req, res) => {
   const { userId } = req.params;
 
   if (!userId.match(/^[\w\d]{24}$/)) {
-    res.status(400).send({ message: 'Переданы некорректные данные' });
+    res.status(ERR_400).send({ message: 'Переданы некорректные данные' });
 
     return;
   }
@@ -27,7 +28,7 @@ const getUserById = (req, res) => {
   User.findById(userId)
     .then((user) => {
       if (!user) {
-        res.status(404).send({ message: 'Данные не найдены' });
+        res.status(ERR_404).send({ message: 'Данные не найдены' });
 
         return;
       }
@@ -43,7 +44,7 @@ const createUser = (req, res) => {
   User.create({ name, about, avatar })
     .then((user) => {
       if (!user) {
-        res.status(404).send({ message: 'Данные не найдены' });
+        res.status(ERR_404).send({ message: 'Данные не найдены' });
 
         return;
       }
@@ -58,7 +59,7 @@ const updateUser = (req, res) => {
   const userId = req.user._id;
 
   if (!userId.match(/^[\w\d]{24}$/)) {
-    res.status(400).send({ message: 'Переданы некорректные данные' });
+    res.status(ERR_400).send({ message: 'Переданы некорректные данные' });
 
     return;
   }
@@ -70,7 +71,7 @@ const updateUser = (req, res) => {
   )
     .then((user) => {
       if (!user) {
-        res.status(404).send({ message: 'Данные не найдены' });
+        res.status(ERR_404).send({ message: 'Данные не найдены' });
 
         return;
       }
@@ -85,7 +86,7 @@ const updateAvatar = (req, res) => {
   const userId = req.user._id;
 
   if (!userId.match(/^[\w\d]{24}$/)) {
-    res.status(400).send({ message: 'Переданы некорректные данные' });
+    res.status(ERR_400).send({ message: 'Переданы некорректные данные' });
 
     return;
   }
@@ -97,7 +98,7 @@ const updateAvatar = (req, res) => {
   )
     .then((user) => {
       if (!user) {
-        res.status(404).send({ message: 'Данные не найдены' });
+        res.status(ERR_404).send({ message: 'Данные не найдены' });
 
         return;
       }

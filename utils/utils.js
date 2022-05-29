@@ -1,12 +1,14 @@
+const { ERR_400, ERR_404, ERR_500 } = require('./constants');
+
 const handleErrors = (err, res) => {
-  let errCode = 500;
+  let errCode = ERR_500;
   let message = 'Что-то пошло не так!';
 
   if (err.name === 'ValidationError') {
-    errCode = 400;
+    errCode = ERR_400;
     message = 'Переданы некорректные данные';
   } else if (err.name === 'CastError') {
-    errCode = 404;
+    errCode = ERR_404;
     message = 'Данные не найдены';
   }
 
