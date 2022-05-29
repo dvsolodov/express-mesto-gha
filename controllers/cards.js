@@ -3,13 +3,37 @@ const { handleErrors } = require('../utils/utils');
 
 const getCards = (req, res) => {
   Card.find({})
-    .then((cards) => res.send({ data: cards }))
+    .then((cards) => {
+      if (!cards) {
+        res.status(404).send({ message: 'Данные не найдены' });
+
+        return;
+      }
+
+      res.send({ data: cards });
+    })
     .catch((err) => handleErrors(err, res));
 };
 
 const deleteCard = (req, res) => {
-  Card.findByIdAndRemove(req.params.id)
-    .then((card) => res.send({ data: card }))
+  const { cardId } = req.params;
+
+  if (!cardId.match(/^[\w\d]{24}$/)) {
+    res.status(400).send({ message: 'Переданы некорректные данные' });
+
+    return;
+  }
+
+  Card.findByIdAndRemove(cardId)
+    .then((card) => {
+      if (!card) {
+        res.status(404).send({ message: 'Данные не найдены' });
+
+        return;
+      }
+
+      res.send({ data: card });
+    })
     .catch((err) => handleErrors(err, res));
 };
 
@@ -21,27 +45,67 @@ const createCard = (req, res) => {
   Card.create({
     name, link, owner, likes, createdAt,
   })
-    .then((card) => res.send({ data: card }))
+    .then((card) => {
+      if (!card) {
+        res.status(404).send({ message: 'Данные не найдены' });
+
+        return;
+      }
+
+      res.send({ data: card });
+    })
     .catch((err) => handleErrors(err, res));
 };
 
 const likeCard = (req, res) => {
+  const { cardId } = req.params;
+
+  if (!cardId.match(/^[\w\d]{24}$/)) {
+    res.status(400).send({ message: 'Переданы некорректные данные' });
+
+    return;
+  }
+
   Card.findByIdAndUpdate(
-    req.params.cardId,
+    cardId,
     { $addToSet: { likes: req.user._id } },
     { new: true },
   )
-    .then((card) => res.send({ data: card }))
+    .then((card) => {
+      if (!card) {
+        res.status(404).send({ message: 'Данные не найдены' });
+
+        return;
+      }
+
+      res.send({ data: card });
+    })
     .catch((err) => handleErrors(err, res));
 };
 
 const dislikeCard = (req, res) => {
+  const { cardId } = req.params;
+
+  if (!cardId.match(/^[\w\d]{24}$/)) {
+    res.status(400).send({ message: 'Переданы некорректные данные' });
+
+    return;
+  }
+
   Card.findByIdAndUpdate(
-    req.params.cardId,
+    cardId,
     { $pull: { likes: req.user._id } },
     { new: true },
   )
-    .then((card) => res.send({ data: card }))
+    .then((card) => {
+      if (!card) {
+        res.status(404).send({ message: 'Данные не найдены' });
+
+        return;
+      }
+
+      res.send({ data: card });
+    })
     .catch((err) => handleErrors(err, res));
 };
 

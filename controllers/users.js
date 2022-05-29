@@ -6,6 +6,8 @@ const getUsers = (req, res) => {
     .then((users) => {
       if (!users) {
         res.status(404).send({ message: 'Данные не найдены' });
+
+        return;
       }
 
       res.send({ data: users });
@@ -18,12 +20,16 @@ const getUserById = (req, res) => {
 
   if (!userId.match(/^[\w\d]{24}$/)) {
     res.status(400).send({ message: 'Переданы некорректные данные' });
+
+    return;
   }
 
   User.findById(userId)
     .then((user) => {
       if (!user) {
         res.status(404).send({ message: 'Данные не найдены' });
+
+        return;
       }
 
       res.send({ data: user });
@@ -38,6 +44,8 @@ const createUser = (req, res) => {
     .then((user) => {
       if (!user) {
         res.status(404).send({ message: 'Данные не найдены' });
+
+        return;
       }
 
       res.send({ data: user });
@@ -51,6 +59,8 @@ const updateUser = (req, res) => {
 
   if (!userId.match(/^[\w\d]{24}$/)) {
     res.status(400).send({ message: 'Переданы некорректные данные' });
+
+    return;
   }
 
   User.findByIdAndUpdate(
@@ -61,6 +71,8 @@ const updateUser = (req, res) => {
     .then((user) => {
       if (!user) {
         res.status(404).send({ message: 'Данные не найдены' });
+
+        return;
       }
 
       res.send({ data: user });
@@ -74,6 +86,8 @@ const updateAvatar = (req, res) => {
 
   if (!userId.match(/^[\w\d]{24}$/)) {
     res.status(400).send({ message: 'Переданы некорректные данные' });
+
+    return;
   }
 
   User.findByIdAndUpdate(
@@ -84,6 +98,8 @@ const updateAvatar = (req, res) => {
     .then((user) => {
       if (!user) {
         res.status(404).send({ message: 'Данные не найдены' });
+
+        return;
       }
 
       res.send({ data: user });
