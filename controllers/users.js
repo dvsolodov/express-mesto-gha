@@ -8,8 +8,20 @@ const getUsers = (req, res) => {
 };
 
 const getUserById = (req, res) => {
-  User.findById(req.params.userId)
-    .then((user) => res.send({ data: user }))
+  const { userId } = req.params;
+
+  if (!userId.match(/^[\w\d]{24}$/)) {
+    res.status(400).send({ message: 'Переданы некорректные данные' });
+  }
+
+  User.findById(userId)
+    .then((user) => {
+      if (!user) {
+        res.status(404).send({ message: 'Данные не найдены' });
+      }
+
+      res.send({ data: user });
+    })
     .catch((err) => handleErrors(err, res));
 };
 
@@ -23,14 +35,24 @@ const createUser = (req, res) => {
 
 const updateUser = (req, res) => {
   const { name, about } = req.body;
-  console.log(req.body, name, about, req.user._id);
+  const userId = req.user._id;
+
+  if (!userId.match(/^[\w\d]{24}$/)) {
+    res.status(400).send({ message: 'Переданы некорректные данные' });
+  }
 
   User.findByIdAndUpdate(
-    req.user._id,
+    userId,
     { name, about },
     { new: true, runValidators: true, upsert: true },
   )
-    .then((user) => res.send({ data: user }))
+    .then((user) => {
+      if (!user) {
+        res.status(404).send({ message: 'Данные не найдены' });
+      }
+
+      res.send({ data: user });
+    })
     .catch((err) => handleErrors(err, res));
 };
 
