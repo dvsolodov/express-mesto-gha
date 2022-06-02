@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const { handleErrors } = require('../utils/utils');
 const { ERR_400, ERR_401, ERR_404 } = require('../utils/constants');
+
 const { NODE_ENV, JWT_SECRET } = process.env;
 
 const getUsers = (req, res) => {
@@ -42,11 +43,15 @@ const getUserById = (req, res) => {
 };
 
 const createUser = (req, res) => {
-  const { name, about, avatar, email, password } = req.body;
+  const {
+    name, about, avatar, email, password,
+  } = req.body;
 
   bcrypt.hash(password, 10)
     .then((hash) => {
-      User.create({ name, about, avatar, email, password: hash })
+      User.create({
+        name, about, avatar, email, password: hash,
+      })
         .then((user) => {
           if (!user) {
             res.status(ERR_404).send({ message: 'Данные не найдены' });
@@ -115,15 +120,14 @@ const updateAvatar = (req, res) => {
 };
 
 const login = (req, res) => {
-  const email = req.body.email;
-  const password = req.body.password;
+  const { email, password } = req.body;
 
   User.findOne({ email })
     .then((user) => {
       if (!user) {
         res.status(ERR_401).send({ message: 'Неправильные почта или пароль' });
 
-        return;
+        return undefined;
       }
 
       return {
@@ -141,16 +145,14 @@ const login = (req, res) => {
       const token = jwt.sign(
         { _id: user._id },
         NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret',
-        { expiresIn: 3600 }
+        { expiresIn: 3600 },
       );
-      res
-      .cookie('jwt', token, {
+      res.cookie('jwt', token, {
         maxAge: 3600000,
-        httpOnly: true
-      })
-      .end();
+        httpOnly: true,
+      });
     });
-}
+};
 
 module.exports = {
   login,
