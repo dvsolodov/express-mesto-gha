@@ -45,15 +45,17 @@ const createUser = (req, res) => {
   const { name, about, avatar, email, password } = req.body;
 
   bcrypt.hash(password, 10)
-    .then(hash => User.create({ name, about, avatar, email, password: hash })
-    .then((user) => {
-      if (!user) {
-        res.status(ERR_404).send({ message: 'Данные не найдены' });
+    .then((hash) => {
+      User.create({ name, about, avatar, email, password: hash })
+        .then((user) => {
+          if (!user) {
+            res.status(ERR_404).send({ message: 'Данные не найдены' });
 
-        return;
-      }
+            return;
+          }
 
-      res.send({ data: user });
+          res.send({ data: user });
+        });
     })
     .catch((err) => handleErrors(err, res));
 };
