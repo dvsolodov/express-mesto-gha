@@ -1,7 +1,9 @@
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const { handleErrors } = require('../utils/utils');
-const { ERR_400, ERR_404 } = require('../utils/constants');
+const { ERR_400, ERR_401, ERR_404 } = require('../utils/constants');
+const { NODE_ENV, JWT_SECRET } = process.env;
 
 const getUsers = (req, res) => {
   User.find({})
@@ -110,7 +112,46 @@ const updateAvatar = (req, res) => {
     .catch((err) => handleErrors(err, res));
 };
 
+const login = (req, res) => {
+  const email = req.body.email;
+  const password = req.body.password;
+
+  User.findOne({ email })
+    .then((user) => {
+      if (!user) {
+        res.status(ERR_401).send({ message: 'Неправильные почта или пароль' });
+
+        return;
+      }
+
+      return {
+        matched: bcrypt.compare(password, user.password),
+        user,
+      };
+    })
+    .then(({ matched, user }) => {
+      if (!matched) {
+        res.status(ERR_401).send({ message: 'Неправильные почта или пароль' });
+
+        return;
+      }
+
+      const token = jwt.sign(
+        { _id: user._id },
+        NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret',
+        { expiresIn: 3600 }
+      );
+      res
+      .cookie('jwt', token, {
+        maxAge: 3600000,
+        httpOnly: true
+      })
+      .end();
+    });
+}
+
 module.exports = {
+  login,
   getUsers,
   getUserById,
   createUser,
