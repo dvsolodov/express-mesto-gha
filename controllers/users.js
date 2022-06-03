@@ -20,6 +20,29 @@ const getUsers = (req, res) => {
     .catch((err) => handleErrors(err, res));
 };
 
+const getUser = (req, res) => {
+  const token = req.cookies.jwt;
+  const userId = jwt.decode(token)._id;
+
+  if (!userId.match(/^[\w\d]{24}$/i)) {
+    res.status(ERR_400).send({ message: 'Переданы некорректные данные' });
+
+    return;
+  }
+
+  User.findById(userId)
+    .then((user) => {
+      if (!user) {
+        res.status(ERR_404).send({ message: 'Данные не найдены' });
+
+        return;
+      }
+
+      res.send({ data: user });
+    })
+    .catch((err) => handleErrors(err, res));
+};
+
 const getUserById = (req, res) => {
   const { userId } = req.params;
 
@@ -46,8 +69,6 @@ const createUser = (req, res) => {
   const {
     name, about, avatar, email, password,
   } = req.body;
-
-  console.log(req.body);
 
   bcrypt.hash(password, 10)
     .then((hash) => {
@@ -160,6 +181,7 @@ const login = (req, res) => {
 module.exports = {
   login,
   getUsers,
+  getUser,
   getUserById,
   createUser,
   updateUser,
