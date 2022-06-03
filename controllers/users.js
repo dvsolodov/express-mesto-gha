@@ -47,6 +47,8 @@ const createUser = (req, res) => {
     name, about, avatar, email, password,
   } = req.body;
 
+  console.log(req.body);
+
   bcrypt.hash(password, 10)
     .then((hash) => {
       User.create({
@@ -150,7 +152,8 @@ const login = (req, res) => {
       res.cookie('jwt', token, {
         maxAge: 3600000,
         httpOnly: true,
-      });
+      })
+        .end();
     });
 };
 
