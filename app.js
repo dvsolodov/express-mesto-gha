@@ -4,6 +4,7 @@ const express = require('express');
 const app = express();
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
 
 const userRouter = require('./routes/users');
 const cardRouter = require('./routes/cards');
@@ -30,6 +31,7 @@ app.use((req, res, next) => {
 });
 */
 app.use(bodyParser.json());
+app.use(cookieParser());
 
 app.post('/signin', login);
 app.post('/signup', createUser);
