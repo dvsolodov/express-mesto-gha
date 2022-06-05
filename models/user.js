@@ -15,6 +15,12 @@ const userSchema = new mongoose.Schema({
   },
   avatar: {
     type: String,
+    validate: {
+      validator(v) {
+        return /^(https?:\/\/)?([\da-z-]+)\.([a-z]{2,6})([/\w-]*)*\/?$/.test(v);
+      },
+      message: (props) => `${props.value} не соответствует формату URL!`,
+    },
     default: 'https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png',
   },
   email: {
