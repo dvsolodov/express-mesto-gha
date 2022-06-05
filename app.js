@@ -33,7 +33,12 @@ app.use('/cards', cardRouter);
 app.use('/', Router404);
 
 app.use((err, req, res, next) => {
-  const { statusCode = 500, message } = err;
+  let { statusCode = 500, message } = err;
+
+  if (err.code === 11000) {
+    statusCode = 409;
+    message = 'Пользователь с такой почтой уже зарегистрирован';
+  }
 
   res
     .status(statusCode)
