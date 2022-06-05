@@ -5,6 +5,9 @@ const app = express();
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
+const { celebrate, Joi } = require('celebrate');
+
+const { errors } = require('celebrate');
 
 const userRouter = require('./routes/users');
 const cardRouter = require('./routes/cards');
@@ -24,15 +27,31 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {
 app.use(bodyParser.json());
 app.use(cookieParser());
 
-app.post('/signin', login);
-app.post('/signup', createUser);
+app.post('/signin', celebrate({
+  body: Joi.object().keys({
+    email: Joi.string().required().email(),
+    password: Joi.string().required().pattern(new RegExp('^[a-zA-Z0-9]{8,}$')),
+  }),
+}), login);
+
+app.post('/signup', celebrate({
+  body: Joi.object().keys({
+    email: Joi.string().required().email(),
+    password: Joi.string().required().pattern(new RegExp('^[a-zA-Z0-9]{8,}$')),
+    name: Joi.string().required().min(2).max(30),
+    about: Joi.string().min(2).max(30),
+    avatar: Joi.string().uri(),
+  }),
+}), createUser);
 
 app.use(auth);
 app.use('/users', userRouter);
 app.use('/cards', cardRouter);
 app.use('/', Router404);
 
-app.use((err, req, res) => {
+app.use(errors());
+
+app.use((err, req, res, next) => {
   let { statusCode = 500, message } = err;
 
   if (err.code === 11000) {

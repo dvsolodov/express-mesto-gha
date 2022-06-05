@@ -19,6 +19,12 @@ const userSchema = new mongoose.Schema({
   },
   email: {
     type: String,
+    validate: {
+      validator(v) {
+        return /^([a-z0-9_\.-]+)@([a-z0-9_\.-]+)\.([a-z\.]{2,6})$/.test(v);
+      },
+      message: (props) => `${props.value} не соответствует формату адреса электронной почты!`,
+    },
     required: true,
     unique: true,
   },
