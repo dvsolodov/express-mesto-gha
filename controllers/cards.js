@@ -1,48 +1,42 @@
 const jwt = require('jsonwebtoken');
 const Card = require('../models/card');
-const { handleErrors } = require('../utils/utils');
-const { ERR_400, ERR_404 } = require('../utils/constants');
+const NotFoundError = require('../errors/not-found-err');
+const BadRequestError = require('../errors/bad-request-err');
 
-const getCards = (req, res) => {
+const getCards = (req, res, next) => {
   Card.find({})
     .then((cards) => {
       if (!cards) {
-        res.status(ERR_404).send({ message: 'Данные не найдены' });
-
-        return;
+        throw new NotFoundError('Нет данных');
       }
 
       res.send({ data: cards });
     })
-    .catch((err) => handleErrors(err, res));
+    .catch(next);
 };
 
-const deleteCard = (req, res) => {
+const deleteCard = (req, res, next) => {
   const { cardId } = req.params;
   const token = req.cookies.jwt;
   const userId = jwt.decode(token)._id;
 
   if (!cardId.match(/^[\w\d]{24}$/) || !userId.match(/^[\w\d]{24}$/i)) {
-    res.status(ERR_400).send({ message: 'Переданы некорректные данные' });
-
-    return;
+    throw new BadRequestError('Переданы некорректные данные');
   }
 
   Card.findByIdAndRemove(cardId)
     .then((card) => {
       if (!card || card.owner !== userId) {
-        res.status(ERR_404).send({ message: 'Данные не найдены' });
-
-        return;
+        throw new NotFoundError('Нет данных');
       }
 
       res.send({ data: card });
       res.end();
     })
-    .catch((err) => handleErrors(err, res));
+    .catch(next);
 };
 
-const createCard = (req, res) => {
+const createCard = (req, res, next) => {
   const {
     name, link, owner = req.user._id, likes, createdAt = new Date(),
   } = req.body;
@@ -52,23 +46,19 @@ const createCard = (req, res) => {
   })
     .then((card) => {
       if (!card) {
-        res.status(ERR_404).send({ message: 'Данные не найдены' });
-
-        return;
+        throw new NotFoundError('Нет данных');
       }
 
       res.send({ data: card });
     })
-    .catch((err) => handleErrors(err, res));
+    .catch(next);
 };
 
-const likeCard = (req, res) => {
+const likeCard = (req, res, next) => {
   const { cardId } = req.params;
 
   if (!cardId.match(/^[\w\d]{24}$/)) {
-    res.status(ERR_400).send({ message: 'Переданы некорректные данные' });
-
-    return;
+    throw new BadRequestError('Переданы некорректные данные');
   }
 
   Card.findByIdAndUpdate(
@@ -78,23 +68,19 @@ const likeCard = (req, res) => {
   )
     .then((card) => {
       if (!card) {
-        res.status(ERR_404).send({ message: 'Данные не найдены' });
-
-        return;
+        throw new NotFoundError('Нет данных');
       }
 
       res.send({ data: card });
     })
-    .catch((err) => handleErrors(err, res));
+    .catch(next);
 };
 
-const dislikeCard = (req, res) => {
+const dislikeCard = (req, res, next) => {
   const { cardId } = req.params;
 
   if (!cardId.match(/^[\w\d]{24}$/)) {
-    res.status(ERR_400).send({ message: 'Переданы некорректные данные' });
-
-    return;
+    throw new BadRequestError('Переданы некорректные данные');
   }
 
   Card.findByIdAndUpdate(
@@ -104,14 +90,12 @@ const dislikeCard = (req, res) => {
   )
     .then((card) => {
       if (!card) {
-        res.status(ERR_404).send({ message: 'Данные не найдены' });
-
-        return;
+        throw new NotFoundError('Нет данных');
       }
 
       res.send({ data: card });
     })
-    .catch((err) => handleErrors(err, res));
+    .catch(next);
 };
 
 module.exports = {

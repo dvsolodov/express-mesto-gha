@@ -32,7 +32,7 @@ app.use('/users', userRouter);
 app.use('/cards', cardRouter);
 app.use('/', Router404);
 
-app.use((err, req, res, next) => {
+app.use((err, req, res) => {
   let { statusCode = 500, message } = err;
 
   if (err.code === 11000) {
