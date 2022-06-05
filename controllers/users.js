@@ -2,22 +2,20 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const { handleErrors } = require('../utils/utils');
-const { ERR_400, ERR_401, ERR_404 } = require('../utils/constants');
+const NotFoundError = require('../errors/not-found-err');
 
 const { NODE_ENV, JWT_SECRET } = process.env;
 
-const getUsers = (req, res) => {
+const getUsers = (req, res, next) => {
   User.find({})
     .then((users) => {
-      if (!users) {
-        res.status(ERR_404).send({ message: 'Данные не найдены' });
-
-        return;
+      if (users.length === 0) {
+        throw new NotFoundError('Нет данных');
       }
 
       res.send({ data: users });
     })
-    .catch((err) => handleErrors(err, res));
+    .catch(next);
 };
 
 const getUser = (req, res) => {
