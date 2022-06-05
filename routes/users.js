@@ -9,6 +9,7 @@ const {
 } = require('../controllers/users');
 
 const router = express.Router();
+const urlPattern = /^(https?:\/\/)?([\da-z-]+)\.([a-z]{2,6})([\/\w-]*)*\/?$/;
 
 router.get('/', getUsers);
 
@@ -16,7 +17,7 @@ router.get('/me', getUser);
 
 router.patch('/me/avatar', celebrate({
   body: Joi.object().keys({
-    avatar: Joi.string().uri(),
+    avatar: Joi.string().pattern(new RegExp(urlPattern)),
   }),
 }), updateAvatar);
 
