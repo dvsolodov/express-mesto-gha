@@ -1,8 +1,9 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
-const { handleErrors } = require('../utils/utils');
 const NotFoundError = require('../errors/not-found-err');
+const BadRequestError = require('../errors/bad-request-err');
+const UnauthorizedError = require('../errors/unauthorized-err');
 
 const { NODE_ENV, JWT_SECRET } = process.env;
 
@@ -18,52 +19,44 @@ const getUsers = (req, res, next) => {
     .catch(next);
 };
 
-const getUser = (req, res) => {
+const getUser = (req, res, next) => {
   const token = req.cookies.jwt;
   const userId = jwt.decode(token)._id;
 
   if (!userId.match(/^[\w\d]{24}$/i)) {
-    res.status(ERR_400).send({ message: 'Переданы некорректные данные' });
-
-    return;
+    throw new BadRequestError('Переданы некорректные данные');
   }
 
   User.findById(userId)
     .then((user) => {
       if (!user) {
-        res.status(ERR_404).send({ message: 'Данные не найдены' });
-
-        return;
+        throw new NotFoundError('Нет данных');
       }
 
       res.send({ data: user });
     })
-    .catch((err) => handleErrors(err, res));
+    .catch(next);
 };
 
-const getUserById = (req, res) => {
+const getUserById = (req, res, next) => {
   const { userId } = req.params;
 
   if (!userId.match(/^[\w\d]{24}$/)) {
-    res.status(ERR_400).send({ message: 'Переданы некорректные данные' });
-
-    return;
+    throw new BadRequestError('Переданы некорректные данные');
   }
 
   User.findById(userId)
     .then((user) => {
       if (!user) {
-        res.status(ERR_404).send({ message: 'Данные не найдены' });
-
-        return;
+        throw new NotFoundError('Нет данных');
       }
 
       res.send({ data: user });
     })
-    .catch((err) => handleErrors(err, res));
+    .catch(next);
 };
 
-const createUser = (req, res) => {
+const createUser = (req, res, next) => {
   const {
     name, about, avatar, email, password,
   } = req.body;
@@ -75,25 +68,21 @@ const createUser = (req, res) => {
       })
         .then((user) => {
           if (!user) {
-            res.status(ERR_404).send({ message: 'Данные не найдены' });
-
-            return;
+            throw new NotFoundError('Нет данных');
           }
 
           res.send({ data: user });
         });
     })
-    .catch((err) => handleErrors(err, res));
+    .catch(next);
 };
 
-const updateUser = (req, res) => {
+const updateUser = (req, res, next) => {
   const { name, about } = req.body;
   const userId = req.user._id;
 
   if (!userId.match(/^[\w\d]{24}$/)) {
-    res.status(ERR_400).send({ message: 'Переданы некорректные данные' });
-
-    return;
+    throw new BadRequestError('Переданы некорректные данные');
   }
 
   User.findByIdAndUpdate(
@@ -103,24 +92,20 @@ const updateUser = (req, res) => {
   )
     .then((user) => {
       if (!user) {
-        res.status(ERR_404).send({ message: 'Данные не найдены' });
-
-        return;
+        throw new NotFoundError('Нет данных');
       }
 
       res.send({ data: user });
     })
-    .catch((err) => handleErrors(err, res));
+    .catch(next);
 };
 
-const updateAvatar = (req, res) => {
+const updateAvatar = (req, res, next) => {
   const { avatar } = req.body;
   const userId = req.user._id;
 
   if (!userId.match(/^[\w\d]{24}$/)) {
-    res.status(ERR_400).send({ message: 'Переданы некорректные данные' });
-
-    return;
+    throw new BadRequestError('Переданы некорректные данные');
   }
 
   User.findByIdAndUpdate(
@@ -130,25 +115,21 @@ const updateAvatar = (req, res) => {
   )
     .then((user) => {
       if (!user) {
-        res.status(ERR_404).send({ message: 'Данные не найдены' });
-
-        return;
+        throw new NotFoundError('Нет данных');
       }
 
       res.send({ data: user });
     })
-    .catch((err) => handleErrors(err, res));
+    .catch(next);
 };
 
-const login = (req, res) => {
+const login = (req, res, next) => {
   const { email, password } = req.body;
 
   User.findOne({ email }).select('+password')
     .then((user) => {
       if (!user) {
-        res.status(ERR_401).send({ message: 'Неправильные почта или пароль' });
-
-        return undefined;
+        throw new NotFoundError('Неправильные почта или пароль');
       }
 
       return {
@@ -158,9 +139,7 @@ const login = (req, res) => {
     })
     .then(({ matched, user }) => {
       if (!matched) {
-        res.status(ERR_401).send({ message: 'Неправильные почта или пароль' });
-
-        return;
+        throw new NotFoundError('Неправильные почта или пароль');
       }
 
       const token = jwt.sign(
@@ -173,7 +152,8 @@ const login = (req, res) => {
         httpOnly: true,
       })
         .end();
-    });
+    })
+    .catch(next);
 };
 
 module.exports = {
