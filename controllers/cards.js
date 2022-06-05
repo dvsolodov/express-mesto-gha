@@ -1,3 +1,4 @@
+const jwt = require('jsonwebtoken');
 const Card = require('../models/card');
 const { handleErrors } = require('../utils/utils');
 const { ERR_400, ERR_404 } = require('../utils/constants');
@@ -18,8 +19,10 @@ const getCards = (req, res) => {
 
 const deleteCard = (req, res) => {
   const { cardId } = req.params;
+  const token = req.cookies.jwt;
+  const userId = jwt.decode(token)._id;
 
-  if (!cardId.match(/^[\w\d]{24}$/)) {
+  if (!cardId.match(/^[\w\d]{24}$/) || !userId.match(/^[\w\d]{24}$/i)) {
     res.status(ERR_400).send({ message: 'Переданы некорректные данные' });
 
     return;
@@ -27,13 +30,14 @@ const deleteCard = (req, res) => {
 
   Card.findByIdAndRemove(cardId)
     .then((card) => {
-      if (!card) {
+      if (!card || card.owner !== userId) {
         res.status(ERR_404).send({ message: 'Данные не найдены' });
 
         return;
       }
 
       res.send({ data: card });
+      res.end();
     })
     .catch((err) => handleErrors(err, res));
 };

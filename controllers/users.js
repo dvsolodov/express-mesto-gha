@@ -145,7 +145,7 @@ const updateAvatar = (req, res) => {
 const login = (req, res) => {
   const { email, password } = req.body;
 
-  User.findOne({ email })
+  User.findOne({ email }).select('+password')
     .then((user) => {
       if (!user) {
         res.status(ERR_401).send({ message: 'Неправильные почта или пароль' });
