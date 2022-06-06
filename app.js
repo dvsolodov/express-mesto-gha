@@ -18,7 +18,7 @@ const auth = require('./middlewares/auth');
 
 const { PORT = 3000 } = process.env;
 const passwordPattern = /^[a-zA-Z0-9]{8,}$/;
-const urlPattern = /^(https?:\/\/)?([\da-z-]+)\.([a-z]{2,6})([/\w-]*)*\/?$/;
+const urlPattern = /^(https?:\/\/)?([.\da-z-]+)\.([a-z]{2,6})([/\w-]*)*\/?$/;
 
 mongoose.connect('mongodb://localhost:27017/mestodb', {
   useNewUrlParser: true,

@@ -9,7 +9,7 @@ const {
 } = require('../controllers/users');
 
 const router = express.Router();
-const urlPattern = /^(https?:\/\/)?([\da-z-]+)\.([a-z]{2,6})([/\w-]*)*\/?$/;
+const urlPattern = /^(https?:\/\/)?([.\da-z-]+)\.([a-z]{2,6})([/\w-]*)*\/?$/;
 
 router.get('/', getUsers);
 
