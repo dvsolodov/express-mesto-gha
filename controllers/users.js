@@ -70,7 +70,7 @@ const createUser = (req, res, next) => {
             throw new NotFoundError('Нет данных');
           }
 
-          res.send({ data: user });
+          res.send({ data: user }).end();
         })
         .catch(next);
     })

@@ -17,9 +17,9 @@ const userSchema = new mongoose.Schema({
     type: String,
     validate: {
       validator(v) {
-        return /^(https?:\/\/)?([.\da-z-]+)\.([a-z]{2,6})([/\w-]*)*\/?$/.test(v);
+        return /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b[-a-zA-Z0-9()@:%_.~#?&//=+]*/.test(v);
       },
-      message: (props) => `${props.value} не соответствует формату URL!`,
+      message: (props) => `Ссылка ${props.value} не соответствует формату URL!`,
     },
     default: 'https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png',
   },
@@ -27,7 +27,7 @@ const userSchema = new mongoose.Schema({
     type: String,
     validate: {
       validator(v) {
-        return /^[a-z0-9_-]+@[a-z0-9_-]+\.[a-z]{2,6}$/.test(v);
+        return /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(v);
       },
       message: (props) => `${props.value} не соответствует формату адреса электронной почты!`,
     },
