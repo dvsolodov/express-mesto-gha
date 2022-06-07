@@ -18,6 +18,7 @@ const auth = require('./middlewares/auth');
 
 const { PORT = 3000 } = process.env;
 const passwordPattern = /^[a-zA-Z0-9]{8,}$/;
+const avatarPattern = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b[-a-zA-Z0-9()@:%_.~#?&//=+]*/;
 
 mongoose.connect('mongodb://localhost:27017/mestodb', {
   useNewUrlParser: true,
@@ -41,7 +42,7 @@ app.post('/signup', celebrate({
     password: Joi.string().required().pattern(new RegExp(passwordPattern)),
     name: Joi.string().min(2).max(30),
     about: Joi.string().min(2).max(30),
-    avatar: Joi.string().uri(),
+    avatar: Joi.string().pattern(avatarPattern),
   }),
 }), createUser);
 
