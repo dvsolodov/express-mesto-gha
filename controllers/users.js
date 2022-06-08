@@ -71,6 +71,7 @@ const createUser = (req, res, next) => {
           }
 
           const responseUser = {
+            _id: user._id,
             name: user.name,
             about: user.about,
             avatar: user.avatar,
