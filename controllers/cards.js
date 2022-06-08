@@ -2,6 +2,8 @@ const jwt = require('jsonwebtoken');
 const Card = require('../models/card');
 const NotFoundError = require('../errors/not-found-err');
 const BadRequestError = require('../errors/bad-request-err');
+const ForbiddenError = require('../errors/forbidden-err');
+const { idPattern } = require('../utils/constants');
 
 const getCards = (req, res, next) => {
   Card.find({})
@@ -20,17 +22,17 @@ const deleteCard = (req, res, next) => {
   const token = req.cookies.jwt;
   const userId = jwt.decode(token)._id;
 
-  if (!cardId.match(/^[\w\d]{24}$/) || !userId.match(/^[\w\d]{24}$/i)) {
+  if (!cardId.match(idPattern) || !userId.match(idPattern)) {
     throw new BadRequestError('Переданы некорректные данные');
   }
 
   Card.findByIdAndRemove(cardId)
     .then((card) => {
-      if (!card || card.owner !== userId) {
-        throw new NotFoundError('Нет данных');
+      if (!card || String(card.owner) !== String(userId)) {
+        throw new ForbiddenError('Вы не имеете право удалять чужие карточки');
       }
 
-      res.send({ data: card });
+      res.status(200).send({ data: card });
       res.end();
     })
     .catch(next);
@@ -57,10 +59,6 @@ const createCard = (req, res, next) => {
 const likeCard = (req, res, next) => {
   const { cardId } = req.params;
 
-  if (!cardId.match(/^[\w\d]{24}$/)) {
-    throw new BadRequestError('Переданы некорректные данные');
-  }
-
   Card.findByIdAndUpdate(
     cardId,
     { $addToSet: { likes: req.user._id } },
@@ -78,10 +76,6 @@ const likeCard = (req, res, next) => {
 
 const dislikeCard = (req, res, next) => {
   const { cardId } = req.params;
-
-  if (!cardId.match(/^[\w\d]{24}$/)) {
-    throw new BadRequestError('Переданы некорректные данные');
-  }
 
   Card.findByIdAndUpdate(
     cardId,
