@@ -149,19 +149,13 @@ const login = (req, res, next) => {
         NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret',
         { expiresIn: 3600 },
       );
-      const responseUser = {
-        name: user.name,
-        about: user.about,
-        avatar: user.avatar,
-        email: user.email,
-      };
 
       res.cookie('jwt', token, {
         maxAge: 3600000,
         httpOnly: true,
       });
 
-      res.send(responseUser)
+      res.send(user)
         .end();
     })
     .catch(next);
