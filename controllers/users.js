@@ -10,12 +10,13 @@ const { NODE_ENV, JWT_SECRET } = process.env;
 
 const getUsers = (req, res, next) => {
   User.find({})
+    .select('-password')
     .then((users) => {
       if (users.length === 0) {
         throw new NotFoundError('Нет данных');
       }
 
-      res.send({ data: users });
+      res.send(users);
     })
     .catch(next);
 };
@@ -29,12 +30,13 @@ const getUser = (req, res, next) => {
   }
 
   User.findById(userId)
+    .select('-password')
     .then((user) => {
       if (!user) {
         throw new NotFoundError('Нет данных');
       }
 
-      res.send({ data: user });
+      res.send(user);
     })
     .catch(next);
 };
@@ -43,12 +45,13 @@ const getUserById = (req, res, next) => {
   const { userId } = req.params;
 
   User.findById(userId)
+    .select('-password')
     .then((user) => {
       if (!user) {
         throw new NotFoundError('Нет данных');
       }
 
-      res.send({ data: user });
+      res.send(user);
     })
     .catch(next);
 };
@@ -70,7 +73,12 @@ const createUser = (req, res, next) => {
             throw new NotFoundError('Нет данных');
           }
 
-          const { password: pass, ...responseUser } = user._doc;
+          const responseUser = {
+            name: user.name,
+            about: user.about,
+            avatar: user.avatar,
+            email: user.email,
+          };
 
           res.send(responseUser)
             .end();
@@ -89,14 +97,13 @@ const updateUser = (req, res, next) => {
     { name, about },
     { new: true, runValidators: true, upsert: true },
   )
+    .select('-password')
     .then((user) => {
       if (!user) {
         throw new NotFoundError('Нет данных');
       }
 
-      const { password: pass, ...responseUser } = user._doc;
-
-      res.send(responseUser)
+      res.send(user)
         .end();
     })
     .catch(next);
@@ -111,14 +118,13 @@ const updateAvatar = (req, res, next) => {
     { avatar },
     { new: true, runValidators: true, upsert: true },
   )
+    .select('-password')
     .then((user) => {
       if (!user) {
         throw new NotFoundError('Нет данных');
       }
 
-      const { password: pass, ...responseUser } = user._doc;
-
-      res.send(responseUser)
+      res.send(user)
         .end();
     })
     .catch(next);
@@ -127,7 +133,8 @@ const updateAvatar = (req, res, next) => {
 const login = (req, res, next) => {
   const { email, password } = req.body;
 
-  User.findOne({ email }).select('+password')
+  User.findOne({ email })
+    .select('+password')
     .then((user) => {
       if (!user) {
         throw new UnauthorizedError('Неправильные почта или пароль');
@@ -148,7 +155,12 @@ const login = (req, res, next) => {
         NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret',
         { expiresIn: 3600 },
       );
-      const { password: pass, ...responseUser } = user._doc;
+      const responseUser = {
+        name: user.name,
+        about: user.about,
+        avatar: user.avatar,
+        email: user.email,
+      };
 
       res.cookie('jwt', token, {
         maxAge: 3600000,
