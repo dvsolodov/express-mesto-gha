@@ -2,7 +2,6 @@ const mongoose = require('mongoose');
 const {
   urlPattern,
   emailPattern,
-  passwordPattern,
 } = require('../utils/constants');
 
 const userSchema = new mongoose.Schema({
@@ -41,12 +40,6 @@ const userSchema = new mongoose.Schema({
   },
   password: {
     type: String,
-    validate: {
-      validator(v) {
-        return passwordPattern.test(v);
-      },
-      message: (props) => `${props.value} не соответствует формату пароля!`,
-    },
     required: true,
     minlength: 8,
     select: false,
