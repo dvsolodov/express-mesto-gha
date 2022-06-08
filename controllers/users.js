@@ -70,7 +70,10 @@ const createUser = (req, res, next) => {
             throw new NotFoundError('Нет данных');
           }
 
-          res.send({ data: user }).end();
+          const { password: pass, ...responseUser } = user._doc;
+
+          res.send({ data: responseUser })
+            .end();
         })
         .catch(next);
     })
@@ -95,7 +98,10 @@ const updateUser = (req, res, next) => {
         throw new NotFoundError('Нет данных');
       }
 
-      res.send({ data: user });
+      const { password: pass, ...responseUser } = user._doc;
+
+      res.send({ data: responseUser })
+        .end();
     })
     .catch(next);
 };
@@ -118,7 +124,10 @@ const updateAvatar = (req, res, next) => {
         throw new NotFoundError('Нет данных');
       }
 
-      res.send({ data: user });
+      const { password: pass, ...responseUser } = user._doc;
+
+      res.send({ data: responseUser })
+        .end();
     })
     .catch(next);
 };
@@ -147,10 +156,14 @@ const login = (req, res, next) => {
         NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret',
         { expiresIn: 3600 },
       );
+      const { password: pass, ...responseUser } = user._doc;
+
       res.cookie('jwt', token, {
         maxAge: 3600000,
         httpOnly: true,
-      })
+      });
+
+      res.send({ data: responseUser })
         .end();
     })
     .catch(next);
