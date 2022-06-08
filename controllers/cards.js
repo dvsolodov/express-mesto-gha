@@ -22,13 +22,17 @@ const deleteCard = (req, res, next) => {
   const token = req.cookies.jwt;
   const userId = jwt.decode(token)._id;
 
-  if (!cardId.match(idPattern) || !userId.match(idPattern)) {
+  if (!idPattern.test(cardId) || !idPattern.test(userId)) {
     throw new BadRequestError('Переданы некорректные данные');
   }
 
   Card.findByIdAndRemove(cardId)
     .then((card) => {
-      if (!card || String(card.owner) !== String(userId)) {
+      if (!card) {
+        throw new NotFoundError('Карточка с таким ID не найдена');
+      }
+
+      if (String(card.owner) !== String(userId)) {
         throw new ForbiddenError('Вы не имеете право удалять чужие карточки');
       }
 
