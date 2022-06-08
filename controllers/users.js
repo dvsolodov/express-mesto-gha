@@ -60,9 +60,11 @@ const createUser = (req, res, next) => {
 
   bcrypt.hash(password, 10)
     .then((hash) => {
-      User.create({
-        name, about, avatar, email, password: hash,
-      })
+      User.create(
+        {
+          name, about, avatar, email, password: hash,
+        },
+      )
         .then((user) => {
           if (!user) {
             throw new NotFoundError('Нет данных');
@@ -70,7 +72,7 @@ const createUser = (req, res, next) => {
 
           const { password: pass, ...responseUser } = user._doc;
 
-          res.send({ data: responseUser })
+          res.send(responseUser)
             .end();
         })
         .catch(next);
@@ -94,7 +96,7 @@ const updateUser = (req, res, next) => {
 
       const { password: pass, ...responseUser } = user._doc;
 
-      res.send({ data: responseUser })
+      res.send(responseUser)
         .end();
     })
     .catch(next);
@@ -116,7 +118,7 @@ const updateAvatar = (req, res, next) => {
 
       const { password: pass, ...responseUser } = user._doc;
 
-      res.send({ data: responseUser })
+      res.send(responseUser)
         .end();
     })
     .catch(next);
@@ -153,7 +155,7 @@ const login = (req, res, next) => {
         httpOnly: true,
       });
 
-      res.send({ data: responseUser })
+      res.send(responseUser)
         .end();
     })
     .catch(next);
