@@ -7,6 +7,10 @@ const {
   updateUser,
   updateAvatar,
 } = require('../controllers/users');
+const {
+  urlPattern,
+  idPattern,
+} = require('../utils/constants');
 
 const router = express.Router();
 
@@ -16,7 +20,7 @@ router.get('/me', getUser);
 
 router.patch('/me/avatar', celebrate({
   body: Joi.object().keys({
-    avatar: Joi.string().uri(),
+    avatar: Joi.string().pattern(urlPattern),
   }),
 }), updateAvatar);
 
@@ -29,7 +33,7 @@ router.patch('/me', celebrate({
 
 router.get('/:userId', celebrate({
   params: Joi.object().keys({
-    userId: Joi.string().alphanum().length(24),
+    userId: Joi.string().pattern(idPattern),
   }),
 }), getUserById);
 

@@ -1,4 +1,9 @@
 const mongoose = require('mongoose');
+const {
+  urlPattern,
+  emailPattern,
+  passwordPattern,
+} = require('../utils/constants');
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -17,7 +22,7 @@ const userSchema = new mongoose.Schema({
     type: String,
     validate: {
       validator(v) {
-        return /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b[-a-zA-Z0-9()@:%_.~#?&//=+]*/.test(v);
+        return urlPattern.test(v);
       },
       message: (props) => `Ссылка ${props.value} не соответствует формату URL!`,
     },
@@ -27,7 +32,7 @@ const userSchema = new mongoose.Schema({
     type: String,
     validate: {
       validator(v) {
-        return /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(v);
+        return emailPattern.test(v);
       },
       message: (props) => `${props.value} не соответствует формату адреса электронной почты!`,
     },
@@ -36,6 +41,12 @@ const userSchema = new mongoose.Schema({
   },
   password: {
     type: String,
+    validate: {
+      validator(v) {
+        return passwordPattern.test(v);
+      },
+      message: (props) => `${props.value} не соответствует формату пароля!`,
+    },
     required: true,
     minlength: 8,
     select: false,
