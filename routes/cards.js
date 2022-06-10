@@ -3,10 +3,7 @@ const { celebrate, Joi } = require('celebrate');
 const {
   getCards, deleteCard, createCard, likeCard, dislikeCard,
 } = require('../controllers/cards');
-const {
-  idPattern,
-  urlPattern,
-} = require('../utils/constants');
+const { urlPattern } = require('../utils/constants');
 
 const router = express.Router();
 
@@ -21,19 +18,19 @@ router.post('/', celebrate({
 
 router.delete('/:cardId', celebrate({
   params: Joi.object().keys({
-    cardId: Joi.string().pattern(idPattern),
+    cardId: Joi.string().length(24).hex().required(),
   }),
 }), deleteCard);
 
 router.put('/:cardId/likes', celebrate({
   params: Joi.object().keys({
-    cardId: Joi.string().pattern(idPattern),
+    cardId: Joi.string().length(24).hex().required(),
   }),
 }), likeCard);
 
 router.delete('/:cardId/likes', celebrate({
   params: Joi.object().keys({
-    cardId: Joi.string().pattern(idPattern),
+    cardId: Joi.string().length(24).hex().required(),
   }),
 }), dislikeCard);
 
