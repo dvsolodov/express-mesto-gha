@@ -1,9 +1,7 @@
-const jwt = require('jsonwebtoken');
 const Card = require('../models/card');
 const NotFoundError = require('../errors/not-found-err');
 const BadRequestError = require('../errors/bad-request-err');
 const ForbiddenError = require('../errors/forbidden-err');
-const { idPattern } = require('../utils/constants');
 
 const getCards = (req, res, next) => {
   Card.find({})
