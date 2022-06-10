@@ -141,38 +141,37 @@ const updateAvatar = (req, res, next) => {
     });
 };
 
-const login = (req, res, next) => {
+const login = async (req, res, next) => {
   const { email, password } = req.body;
 
-  User.findOne({ email })
+  await User.findOne({ email })
+    .select('+password')
     .then((user) => {
       if (!user) {
         throw new UnauthorizedError('Неправильные почта или пароль');
       }
 
-      return {
-        matched: bcrypt.compare(password, user.password),
-        user,
-      };
-    })
-    .then(({ matched, user }) => {
-      if (!matched) {
-        throw new UnauthorizedError('Неправильные почта или пароль');
-      }
+      return bcrypt.compare(password, user.password)
+        .then((matched) => {
+          if (!matched) {
+            console.log(matched);
+            throw new UnauthorizedError('Неправильные почта или пароль');
+          }
 
-      const token = jwt.sign(
-        { _id: user._id },
-        NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret',
-        { expiresIn: 3600 },
-      );
+          const token = jwt.sign(
+            { _id: user._id },
+            NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret',
+            { expiresIn: 3600 },
+          );
 
-      res.cookie('jwt', token, {
-        maxAge: 3600000,
-        httpOnly: true,
-      });
+          res.cookie('jwt', token, {
+            maxAge: 3600000,
+            httpOnly: true,
+          });
 
-      res.send(user)
-        .end();
+          res.send({ message: 'Успешный вход в систему' })
+            .end();
+        });
     })
     .catch(next);
 };
