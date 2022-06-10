@@ -106,7 +106,13 @@ const updateUser = (req, res, next) => {
       res.send(user)
         .end();
     })
-    .catch(next);
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        return next(new BadRequestError('Для регистрации переданы некорректные данные'));
+      }
+
+      return next(err);
+    });
 };
 
 const updateAvatar = (req, res, next) => {
@@ -126,7 +132,13 @@ const updateAvatar = (req, res, next) => {
       res.send(user)
         .end();
     })
-    .catch(next);
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        return next(new BadRequestError('Для регистрации переданы некорректные данные'));
+      }
+
+      return next(err);
+    });
 };
 
 const login = (req, res, next) => {
