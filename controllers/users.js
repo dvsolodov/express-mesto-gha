@@ -4,6 +4,7 @@ const User = require('../models/user');
 const NotFoundError = require('../errors/not-found-err');
 const BadRequestError = require('../errors/bad-request-err');
 const UnauthorizedError = require('../errors/unauthorized-err');
+const ConflictError = require('../errors/conflict-err');
 const { idPattern } = require('../utils/constants');
 
 const { NODE_ENV, JWT_SECRET } = process.env;
@@ -53,12 +54,12 @@ const getUserById = (req, res, next) => {
     .catch(next);
 };
 
-const createUser = (req, res, next) => {
+const createUser = async (req, res, next) => {
   const {
     name, about, avatar, email, password,
   } = req.body;
 
-  bcrypt.hash(password, 10)
+  await bcrypt.hash(password, 10)
     .then((hash) => {
       User.create(
         {
@@ -81,7 +82,12 @@ const createUser = (req, res, next) => {
           res.send(responseUser)
             .end();
         })
-        .catch(next);
+        .catch((err) => {
+          if (err.code === 11000) {
+            return next(new ConflictError('Пользователь с такой почтой уже зарегистрирован'));
+          }
+          return next(err);
+        });
     })
     .catch(next);
 };

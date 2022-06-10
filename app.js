@@ -55,12 +55,7 @@ app.use('/', Router404);
 app.use(errors());
 
 app.use((err, req, res, next) => {
-  let { statusCode = 500, message } = err;
-
-  if (err.code === 11000) {
-    statusCode = 409;
-    message = 'Пользователь с такой почтой уже зарегистрирован';
-  }
+  const { statusCode = 500, message } = err;
 
   res
     .status(statusCode)
