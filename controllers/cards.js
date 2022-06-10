@@ -19,25 +19,16 @@ const getCards = (req, res, next) => {
 
 const deleteCard = (req, res, next) => {
   const { cardId } = req.params;
-  const token = req.cookies.jwt;
-  const userId = jwt.decode(token)._id;
 
-  if (!idPattern.test(cardId) || !idPattern.test(userId)) {
-    throw new BadRequestError('Переданы некорректные данные');
-  }
-
-  Card.findByIdAndRemove(cardId)
+  Card.findById(cardId)
+    .orFail(() => new NotFoundError('Карточка с таким ID не найдена'))
     .then((card) => {
-      if (!card) {
-        throw new NotFoundError('Карточка с таким ID не найдена');
+      if (!card.owner.equals(req.user._id)) {
+        return next(new ForbiddenError('Карточка с таким ID не найдена'));
       }
 
-      if (String(card.owner) !== String(userId)) {
-        throw new ForbiddenError('Вы не имеете право удалять чужие карточки');
-      }
-
-      res.status(200).send({ data: card });
-      res.end();
+      return card.remove()
+        .then(() => res.send({ message: 'Карточка удалена' }));
     })
     .catch(next);
 };
