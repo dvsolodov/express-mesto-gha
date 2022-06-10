@@ -8,18 +8,16 @@ const cookieParser = require('cookie-parser');
 const { celebrate, Joi } = require('celebrate');
 
 const { errors } = require('celebrate');
+const NotFoundError = require('./errors/not-found-err');
 
 const userRouter = require('./routes/users');
 const cardRouter = require('./routes/cards');
-const Router404 = require('./routes/404');
 
 const { login, createUser } = require('./controllers/users');
 const auth = require('./middlewares/auth');
 
 const { PORT = 3000 } = process.env;
-const {
-  urlPattern,
-} = require('./utils/constants');
+const { urlPattern } = require('./utils/constants');
 
 mongoose.connect('mongodb://localhost:27017/mestodb', {
   useNewUrlParser: true,
@@ -50,7 +48,9 @@ app.post('/signup', celebrate({
 app.use(auth);
 app.use('/users', userRouter);
 app.use('/cards', cardRouter);
-app.use('/', Router404);
+app.use('/', () => {
+  throw new NotFoundError('Нет данных');
+});
 
 app.use(errors());
 
