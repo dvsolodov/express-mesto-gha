@@ -22,14 +22,7 @@ const getUsers = (req, res, next) => {
 };
 
 const getUser = (req, res, next) => {
-  const token = req.cookies.jwt;
-  const userId = jwt.decode(token)._id;
-
-  if (!userId.match(idPattern)) {
-    throw new BadRequestError('Переданы некорректные данные');
-  }
-
-  User.findById(userId)
+  User.findById(req.user._id)
     .then((user) => {
       if (!user) {
         throw new NotFoundError('Нет данных');
