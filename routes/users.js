@@ -7,10 +7,7 @@ const {
   updateUser,
   updateAvatar,
 } = require('../controllers/users');
-const {
-  urlPattern,
-  idPattern,
-} = require('../utils/constants');
+const { urlPattern } = require('../utils/constants');
 
 const router = express.Router();
 
@@ -33,7 +30,7 @@ router.patch('/me', celebrate({
 
 router.get('/:userId', celebrate({
   params: Joi.object().keys({
-    userId: Joi.string().pattern(idPattern),
+    userId: Joi.string().length(24).hex().required(),
   }),
 }), getUserById);
 
