@@ -48,7 +48,13 @@ const createCard = (req, res, next) => {
 
       res.send({ data: card });
     })
-    .catch(next);
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        return next(new BadRequestError('Для создания карточки переданы некорректные данные'));
+      }
+
+      return next(err);
+    });
 };
 
 const likeCard = (req, res, next) => {
